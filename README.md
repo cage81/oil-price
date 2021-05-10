@@ -1,62 +1,65 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# oil-price
+Laravel application exercise to get oil price trend between two dates.
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+You can download the whole project and run it on your machine using [Docker](https://www.docker.com/) (you must have [Docker Desktop](https://www.docker.com/get-started) installed).
 
-## About Laravel
+This app was developed using [Laravel Sail](https://laravel.com/docs/8.x/sail): _a light-weight command-line interface for interacting with Laravel's default Docker development environment._
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## First run in a shell:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```javascript
+./sail build
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+This will download two Docker images, give it the time :grin:
 
-## Learning Laravel
+## then:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```javascript
+./sail up -d
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+The Dockerfile(s) contained in the docker folder refers to two PHP version (7.4 and 8.0), the docker-compose here uses the 7.4 version. Once you built the image and run it, the container is accessible to the following URL:
 
-## Laravel Sponsors
+```javascript
+http://localhost:8084/
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+there is a standard [Laravel](https://laravel.com/) welcome page.
 
-### Premium Partners
+Once the containers are started, informations provided by the URI:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+```javascript
+https://datahub.io/core/oil-prices/r/brent-daily.json
+```
 
-## Contributing
+are downloaded and stored in a [MySql](https://www.mysql.com/) database (a container with only one table which contains the information, it's truncated and populated at container restart through a custom [Artisan Command](#artisan-command)).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The only one RPC method you can call is the following:
 
-## Code of Conduct
+```javascript
+http://localhost:8084/api/v1
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+providing in input the method name and two ISO 8601 dates as the following example:
 
-## Security Vulnerabilities
+```javascript
+    {
+        "jsonrpc":"2.0",
+        "method":"GetOilPriceTrend",
+        "id":1,
+        "params": { 
+            "startDateISO8601":"2020-06-01",
+            "endDateISO8601":"2020-07-31"
+        }
+    }
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Artisan Command
 
-## License
+You can truncate the table and reload the informations in it running the following Artisan Command:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```javascript
+./sail php artisan buzzoole:loadoilprices
+```
+
